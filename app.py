@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask import Flask, request, redirect, render_template, jsonify
 from flask.ext.bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from models import app, db, User, Paragraph
+from models import app, db, User, Study, Paragraph
 
 # app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -37,8 +37,8 @@ def token_required(f):
     return decorated
 
 
-@app.route('/')
-def home():
+@app.route('/index')
+def index():
     temp_data = {'title': 'SpeechApp'}
     return render_template('index.html', **temp_data)
 
@@ -100,18 +100,6 @@ def user_login():
     return jsonify(ret)
 
 
-@app.route('/study')
-def study():
-    read_file = open("study.csv", "r")
-    data = read_file.read()
-    s = data.split(",")
-    text_id = s[0]
-    text = s[1]
-    paragraph = s[2]
-    study = Study(text_id, text, paragraph)
-    return 'done'
-
-
 ######################################
 #           Upload FILE              #
 ######################################
@@ -133,11 +121,11 @@ def allowed_file(filename):
                                in ALLOWED_EXTENSION
 
 
-@app.route('/file', methods=['POST'])
-def file():
-    prefix = request.base_url[:-len('/file')]
+@app.route('/add_study', methods=['POST'])
+def add_study():
+    prefix = request.base_url[:-len('/add_study')]
     try:
-        csv_file = request.files['pdf']
+        csv_file = request.files['study_file']
 
         if csv_file.filename == '':
             flash('Nop Selectd file')
@@ -152,6 +140,73 @@ def file():
         print(traceback.format_exc())
 
     return 'file upload successfully'
+
+
+@app.route('/study')
+def study():
+    """
+    read_file = open("upload/Sample.csv", "r")
+    line = read_file.readline()
+    """
+    ret = {'err': 0}
+    csv_file = open('upload/study_file.csv', "r")
+
+    line = csv_file.readline()
+    cnt = 1
+    while line:
+
+        line = csv_file.readline()
+        cnt += 1
+        # print("Line {}: {}".format(cnt, line.strip()))
+        s = line.split(',')
+        id = 1
+        Paragraph_Number = s[0]
+        Paragraph_Text = s[1]
+        Date_of_Upload = s[2]
+        Paragraph_Type = s[3]
+        Word_Count = s[4]
+        Status = s[5]
+        GCS_Output = s[6]
+        GCS_Acc = s[7]
+        GCS_Conf = s[8]
+        AH_Output = s[9]
+        AH_Acc = s[10]
+        AH_Conf = s[11]
+        Speaker = s[12]
+        study = Study(id, Paragraph_Number, Paragraph_Text, Date_of_Upload,
+                 Word_Count, Status, GCS_Output, GCS_Acc, GCS_Conf, AH_Output,
+                 AH_Acc, AH_Conf, Speaker)
+        db.session.add(study)
+        db.session.commit()
+        print 'Csv file is stored in the psql'
+        break
+
+    return jsonify(ret)
+
+
+@app.route('/get_study_material')
+def get_study_material():
+    ret = {"err": 0}
+    studies = []
+    for data in Study.query.all():
+        study = {}
+        study['id'] = data.id
+        study['Paragraph_Number'] = data.Paragraph_Number
+        study['Paragraph_Text'] = data.Paragraph_Text
+        study['Date_of_Upload'] = data.Date_of_Upload
+        study['Word_Count'] = data.Word_Count
+        study['Status'] = data.Status
+        study['GCS_Output'] = data.GCS_Output
+        study['GCS_Acc'] = data.GCS_Acc
+        study['GCS_Conf'] = data.GCS_Conf
+        study['AH_Output'] = data.AH_Output
+        study['AH_Acc'] = data.AH_Acc
+        study['AH_Conf'] = data.AH_Conf
+        study['Speaker'] = data.Speaker
+        study['created_at'] = data.created_at
+        studies.append(study)
+    ret["studies"] = studies
+    return jsonify(ret)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

@@ -3,11 +3,19 @@
 #
 
 from flask import Flask
+# from app import app
+import os
+# from eve import Eve
+# from eve_sqlalchemy import SQL
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import ForeignKey
 
 app = Flask(__name__)
+# tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+#                          'templates')
+# app = Eve('SpeechApp', template_folder=tmpl_dir)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql://speechapp:123@localhost/speechdb'
 db = SQLAlchemy(app)
@@ -59,7 +67,7 @@ class Paragraph(db.Model):
 
     @property
     def serialize(self):
-        """Return object data in easily serialzeable format"""
+        
         return {
             'id': self.id,
             'paragraph': self.paragraph,
@@ -73,29 +81,56 @@ class Study(db.Model):
     __tablename__ = 'study'
 
     id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.BigInteger, ForeignKey('user.id'))
-    text_id = db.Column(db.BigInteger)
-    text = db.Column(db.String(90))
-    paragraph = db.Column(db.String(90))
+    # user_id = db.Column(db.BigInteger, ForeignKey('user.id'))
+    Paragraph_Number = db.Column(db.BigInteger)
+    Paragraph_Text = db.Column(db.String(90))
+    Date_of_Upload = db.Column(db.String(90))
+    Word_Count = db.Column(db.BigInteger)
+    Status = db.Column(db.String(90))
+    GCS_Output = db.Column(db.String(90))
+    GCS_Acc = db.Column(db.String(90))
+    GCS_Conf = db.Column(db.String(90))
+    AH_Output = db.Column(db.String(90))
+    AH_Acc = db.Column(db.String(90))
+    AH_Conf = db.Column(db.String(90))
+    Speaker = db.Column(db.String(90))
     created_at = db.Column(db.TIMESTAMP,
                            default=datetime.utcnow, nullable=False)
 
-    def __init__(self, id, user_id, text_id, text, paragraph):
+    def __init__(self, id, Paragraph_Number, Paragraph_Text, Date_of_Upload,
+                 Word_Count, Status, GCS_Output, GCS_Acc, GCS_Conf, AH_Output,
+                 AH_Acc, AH_Conf, Speaker):
         self.id = id
-        self.user_id = user_id
-        self.text_id = text_id
-        self.text = text
-        self.paragraph = paragraph
+        self.Paragraph_Number = Paragraph_Number
+        self.Paragraph_Text = Paragraph_Text
+        self.Date_of_Upload = Date_of_Upload
+        self.Word_Count = Word_Count
+        self.Status = Status
+        self.GCS_Output = GCS_Output
+        self.GCS_Acc = GCS_Acc
+        self.GCS_Conf = GCS_Conf
+        self.AH_Output = AH_Output
+        self.AH_Acc = AH_Acc
+        self.AH_Conf = AH_Conf
+        self.Speaker = Speaker
 
     @property
     def serialize(self):
         """Return object data in easily serialzeable format"""
         return {
             'id': self.id,
-            'text_id': self.text_id,
-            'text': self.text,
-            'user_id': self.user_id,
-            'paragraph': self.paragraph,
+            'Paragraph_Number': self.Paragraph_Number,
+            'Paragraph_Text': self.Paragraph_Text,
+            'Date_of_Upload': self.Date_of_Upload,
+            'Word_Count': self.Word_Count,
+            'Status': self.Status,
+            'GCS_Output': self.GCS_Output,
+            'GCS_Acc': self.GCS_Acc,
+            'GCS_Conf': self.GCS_Conf,
+            'AH_Output': self.AH_Output,
+            'AH_Acc': self.AH_Acc,
+            'AH_Conf': self.AH_Conf,
+            'Speaker': self.Speaker,
             'created_at': self.created_at
         }
 
