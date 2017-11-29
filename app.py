@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask import Flask, request, redirect, render_template, jsonify
 from flask.ext.bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from models import app, db, User, Study, Paragraph
+from models import app, db, User, Study
 
 # app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -55,11 +55,11 @@ def user_registration():
         user = User(id, name, email, pw_hash)
         db.session.add(user)
         db.session.commit()
-        ret['err'] = 0
+        ret['success'] = True
         ret['msg'] = 'User Registration successfully!'
     except Exception as exp:
         print 'user_registration() :: Got exception: %s' % exp
-        ret['err'] = 1
+        ret['success'] = False
         ret['msg'] = '%s' % exp
         print(traceback.format_exc())
     return jsonify(ret)
@@ -134,6 +134,7 @@ def add_study():
             filename = secure_filename(csv_file.filename)
             csv_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             csv = '%s/%s' % (file_path, filename)
+
         save_csv_file_url = '%s/uploads/%s' % (prefix, filename)
     except Exception as exp:
         print 'file() :: Got exception: %s' % exp
@@ -144,69 +145,82 @@ def add_study():
 
 @app.route('/study')
 def study():
-    """
-    read_file = open("upload/Sample.csv", "r")
-    line = read_file.readline()
-    """
-    ret = {'err': 0}
-    csv_file = open('upload/study_file.csv', "r")
 
-    line = csv_file.readline()
-    cnt = 1
-    while line:
+    ret = {}
+    try:
+        # count the no of lines
+        with open('upload/study.csv') as f:
+            for i, l in enumerate(f):
+                pass
+        total_lines = i + 1
+
+        # getting the data from the csv file
+        csv_file = open('upload/study.csv', "r")
 
         line = csv_file.readline()
-        cnt += 1
-        # print("Line {}: {}".format(cnt, line.strip()))
-        s = line.split(',')
-        id = 1
-        Paragraph_Number = s[0]
-        Paragraph_Text = s[1]
-        Date_of_Upload = s[2]
-        Paragraph_Type = s[3]
-        Word_Count = s[4]
-        Status = s[5]
-        GCS_Output = s[6]
-        GCS_Acc = s[7]
-        GCS_Conf = s[8]
-        AH_Output = s[9]
-        AH_Acc = s[10]
-        AH_Conf = s[11]
-        Speaker = s[12]
-        study = Study(id, Paragraph_Number, Paragraph_Text, Date_of_Upload,
-                 Word_Count, Status, GCS_Output, GCS_Acc, GCS_Conf, AH_Output,
-                 AH_Acc, AH_Conf, Speaker)
-        db.session.add(study)
-        db.session.commit()
-        print 'Csv file is stored in the psql'
-        break
+        cnt = 1
+        while cnt < total_lines:
 
+            line = csv_file.readline()
+            s = line.split(',')
+            id = s[0]
+            Paragraph_Number = id
+            Paragraph_Text = s[1]
+            Date_of_Upload = s[2]
+            Paragraph_Type = s[3]
+            Word_Count = s[4]
+            Status = s[5]
+            GCS_Output = s[6]
+            GCS_Acc = s[7]
+            GCS_Conf = s[8]
+            AH_Output = s[9]
+            AH_Acc = s[10]
+            AH_Conf = s[11]
+            Speaker = s[12]
+            study = Study(id, Paragraph_Number, Paragraph_Text, Date_of_Upload,
+                          Word_Count, Status, GCS_Output, GCS_Acc, GCS_Conf,
+                          AH_Output, AH_Acc, AH_Conf, Speaker)
+            db.session.add(study)
+            db.session.commit()
+            ret["success"] = True
+            ret["msg"] = 'Csv file is stored in the psql'
+            cnt += 1
+
+    except Exception as exp:
+        ret["success"] = False
+        ret["error"] = '%s' % exp
     return jsonify(ret)
 
 
 @app.route('/get_study_material')
 def get_study_material():
-    ret = {"err": 0}
+    ret = {}
     studies = []
-    for data in Study.query.all():
-        study = {}
-        study['id'] = data.id
-        study['Paragraph_Number'] = data.Paragraph_Number
-        study['Paragraph_Text'] = data.Paragraph_Text
-        study['Date_of_Upload'] = data.Date_of_Upload
-        study['Word_Count'] = data.Word_Count
-        study['Status'] = data.Status
-        study['GCS_Output'] = data.GCS_Output
-        study['GCS_Acc'] = data.GCS_Acc
-        study['GCS_Conf'] = data.GCS_Conf
-        study['AH_Output'] = data.AH_Output
-        study['AH_Acc'] = data.AH_Acc
-        study['AH_Conf'] = data.AH_Conf
-        study['Speaker'] = data.Speaker
-        study['created_at'] = data.created_at
-        studies.append(study)
-    ret["studies"] = studies
+    try:
+        for data in Study.query.all():
+            study = {}
+            study['id'] = data.id
+            study['Paragraph_Number'] = data.Paragraph_Number
+            study['Paragraph_Text'] = data.Paragraph_Text
+            study['Date_of_Upload'] = data.Date_of_Upload
+            study['Word_Count'] = data.Word_Count
+            study['Status'] = data.Status
+            study['GCS_Output'] = data.GCS_Output
+            study['GCS_Acc'] = data.GCS_Acc
+            study['GCS_Conf'] = data.GCS_Conf
+            study['AH_Output'] = data.AH_Output
+            study['AH_Acc'] = data.AH_Acc
+            study['AH_Conf'] = data.AH_Conf
+            study['Speaker'] = data.Speaker
+            study['created_at'] = data.created_at
+            studies.append(study)
+        ret['success'] = True
+        ret["studies"] = studies
+    except Exception as exp:
+        ret['success'] = False
+        ret['error'] = exp
     return jsonify(ret)
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))

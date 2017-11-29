@@ -3,18 +3,11 @@
 #
 
 from flask import Flask
-# from app import app
-import os
-# from eve import Eve
-# from eve_sqlalchemy import SQL
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy import ForeignKey
 
 app = Flask(__name__)
-# tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-#                          'templates')
-# app = Eve('SpeechApp', template_folder=tmpl_dir)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'postgresql://speechapp:123@localhost/speechdb'
@@ -27,7 +20,7 @@ class User(db.Model):
 
     id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String(90))
-    email = db.Column(db.String(90))
+    email = db.Column(db.String(90), unique=True)
     password = db.Column(db.String(90))
     created_at = db.Column(db.TIMESTAMP,
                            default=datetime.utcnow, nullable=False)
@@ -45,33 +38,6 @@ class User(db.Model):
             'id': self.id,
             'email': self.email,
             'password': self.password,
-            'created_at': self.created_at
-        }
-
-
-class Paragraph(db.Model):
-
-    __tablename__ = 'paragraph'
-
-    id = db.Column(db.BigInteger, primary_key=True)
-    paragraph = db.Column(db.String(90))
-    user_id = db.Column(db.BigInteger, ForeignKey('user.id'))
-    created_at = db.Column(db.TIMESTAMP,
-                           default=datetime.utcnow, nullable=False)
-
-    def __init__(self, id, paragraph, user_id, created_at):
-        self.id = id
-        self.paragraph = paragraph
-        self.user_id = user_id
-        self.created_at = created_at
-
-    @property
-    def serialize(self):
-        
-        return {
-            'id': self.id,
-            'paragraph': self.paragraph,
-            'user_id': self.user_id,
             'created_at': self.created_at
         }
 
