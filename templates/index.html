@@ -5,7 +5,7 @@
     </head>
     <body>
         <h1>Registration SpeechApp</h1>
-        <form action="/user_registration" method="post">
+        <form action="/api/user_registration" method="post">
             <table>
                 <tr>
                     <th>User Id</th>
@@ -31,7 +31,7 @@
 
     <!--=========================== [ Login ] =================================-->
         <h1>Login SpeechApp</h1>
-        <form action="/user_login" method="post">
+        <form action="/api/user_login" method="post">
             <table>
                 <tr>
                     <th>User Email</th>
@@ -39,7 +39,7 @@
                 </tr>
                 <tr>
                     <th>User Password</th>
-                    <td><input type="password" name="pswd" placeholder="Enter User Id"></td>
+                    <td><input type="password" name="password" placeholder="Enter User Id"></td>
                 </tr>
                 <tr>
                     <td><input type="Submit" name="submit" value="Login"></td>
@@ -79,6 +79,32 @@
                 </tr>
                 <tr>
                     <td><input type="Submit" name="submit" value="upload"></td>
+                </tr>
+            </table>
+        </form>
+
+    <!--=========================== [ Paragraph ] =================================-->
+        <h1>Add Recording</h1>
+        <form action="/api/add_recording" method="post" enctype="multipart/form-data">
+            <table>
+                <tr>
+                    <th>Id</th>
+                    <td><input type="text" name="id" placeholder="Enter paragraph Id"></td>
+                </tr>
+                <tr>
+                    <th>User Id</th>
+                    <td><input type="text" name="user_id" placeholder="Enter Paragraph"></td>
+                </tr>
+                <tr>
+                    <th>Study Id</th>
+                    <td><input type="text" name="study_id" placeholder="Enter User Id"></td>
+                </tr>
+                <tr>
+                    <td><b>Recording File</b></td>
+                    <td><input type="file" name="recording_file" value="recording_file" /></td>
+                </tr>
+                <tr>
+                    <td><input type="Submit" name="submit" value="Add Recording"></td>
                 </tr>
             </table>
         </form>

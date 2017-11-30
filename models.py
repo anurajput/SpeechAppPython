@@ -33,6 +33,7 @@ class User(db.Model):
 
     @property
     def serialize(self):
+
         """ Return object data in easily serializeable format"""
         return {
             'id': self.id,
@@ -82,6 +83,7 @@ class Study(db.Model):
 
     @property
     def serialize(self):
+
         """Return object data in easily serialzeable format"""
         return {
             'id': self.id,
@@ -98,6 +100,35 @@ class Study(db.Model):
             'AH_Conf': self.AH_Conf,
             'Speaker': self.Speaker,
             'created_at': self.created_at
+        }
+
+
+class Recording(db.Model):
+
+    __tablename__ = 'recording'
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    user_id = db.Column(db.BigInteger, ForeignKey('user.id'))
+    study_id = db.Column(db.BigInteger, ForeignKey('study.id'))
+    recording_file = db.Column(db.String(90))
+    created_at = db.Column(db.TIMESTAMP,
+                           default=datetime.utcnow, nullable=False)
+
+    def __init__(self, id, user_id, study_id, recording_file):
+        self.id = id
+        self.user_id = user_id
+        self.study_id = study_id
+        self.recording_file = recording_file
+
+    @property
+    def serialize(self):
+
+        """Return object data in easily serialzeable format"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'study_id': self.study_id,
+            'recording_file': self.recording_file
         }
 
 

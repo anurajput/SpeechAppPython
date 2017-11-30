@@ -2,15 +2,18 @@ import os
 import jwt
 import traceback
 import datetime
+from flask_cors import CORS
 from functools import wraps
 from werkzeug.utils import secure_filename
 from flask import Flask, request, redirect, render_template, jsonify
 from flask.ext.bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
-from models import app, db, User, Study
+from models import app, db, User, Study, Recording
 
 # app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config['secretkey'] = 'some-strong+secret#key'
 
 
@@ -43,7 +46,7 @@ def index():
     return render_template('index.html', **temp_data)
 
 
-@app.route('/user_registration', methods=['POST'])
+@app.route('/api/user_registration', methods=['POST'])
 def user_registration():
     ret = {}
     try:
@@ -65,13 +68,19 @@ def user_registration():
     return jsonify(ret)
 
 
-@app.route('/user_login', methods=['POST'])
+@app.route('/api/user_login', methods=['POST'])
 def user_login():
     ret = {}
     try:
         email = request.form['email']
-        pswd = request.form['pswd']
+        pswd = request.form['password']
         query = User.query.filter_by(email=email).first()
+
+        # check email is valid or not
+        if not query:
+            ret["msg"] = 'Login failed! Email is not valid'
+            ret["success"] = False
+            return jsonify(ret)
         password_db = query.password
 
         # match password
@@ -88,9 +97,9 @@ def user_login():
             ret['success'] = True
             ret['msg'] = 'Login successful'
             ret['token'] = token.decode('UTF-8')
-        else:
-            ret['msg'] = 'Login failed! Email and Password not match'
-            ret['success'] = False
+            return jsonify(ret)
+        ret['msg'] = 'Login failed! Email and Password not match'
+        ret['success'] = False
 
     except Exception as exp:
         print 'user_login() :: Got exception: %s' % exp
@@ -143,7 +152,8 @@ def add_study():
     return 'file upload successfully'
 
 
-@app.route('/study')
+@app.route('/api/study')
+@token_required
 def study():
 
     ret = {}
@@ -192,7 +202,8 @@ def study():
     return jsonify(ret)
 
 
-@app.route('/get_study_material')
+@app.route('/api/get_study_material')
+@token_required
 def get_study_material():
     ret = {}
     studies = []
@@ -222,6 +233,44 @@ def get_study_material():
     return jsonify(ret)
 
 
+@app.route('/api/add_recording', methods=['POST'])
+def add_recording():
+    ret = {}
+    prefix = request.base_url[:-len('/api/add_recording')]
+    try:
+        id = request.form['id']
+        user_id = request.form['user_id']
+        study_id = request.form['study_id']
+
+        # recording upload
+        filename = ''
+        recording_file = request.files['recording_file']
+
+        if recording_file.filename == '':
+            flash('Nop Selectd file')
+            return redirect(request.url)
+        if recording_file and allowed_file(recording_file.filename):
+            filename = secure_filename(recording_file.filename)
+            recording_file.save(os.path.join(app.config
+                                             ['UPLOAD_FOLDER'], filename))
+            recording = '%s/%s' % (file_path, filename)
+
+        save_recording_file_url = '%s/uploads/%s' % (prefix, filename)
+
+        # save in database
+        recording = Recording(id, user_id, study_id, save_recording_file_url)
+        db.session.add(recording)
+        db.session.commit()
+        ret["success"] = True
+        ret["msg"] = 'recording added successfully'
+    except Exception as exp:
+        print 'add_recording() :: Got excepion: %s' % exp
+        print(traceback.format_exc())
+        ret["msg"] = '%s' % exp
+        ret["success"] = False
+    return jsonify(ret)
+
+
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=True, threaded=True)
