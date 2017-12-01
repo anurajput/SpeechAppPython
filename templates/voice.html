@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--<script src="src/recorder.js"></script>-->
+    <!--<script src="src/Fr.voice.js"></script>-->
+    <!--<script src="js/jquery.js"></script>-->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/css/materialize.min.css">
+
+    <style>
+        .button
+          {
+            display: inline-block; vertical-align: middle; margin: 0px 5px; padding: 5px 12px; cursor: pointer; outline: none; font-size:
+            13px; text-decoration: none !important; text-align: center; color:#fff; background-color: #4D90FE; background-image: linear-gradient(top,#4D90FE, #4787ED);
+            background-image: -ms-linear-gradient(top,#4D90FE, #4787ED); background-image: -o-linear-gradient(top,#4D90FE, #4787ED);
+            background-image: linear-gradient(top,#4D90FE, #4787ED); border: 1px solid #4787ED; box-shadow: 0 1px 3px #BFBFBF;
+            }
+
+        a.button
+          {
+          color: #fff;
+          }
+
+        .button:hover
+          {
+          box-shadow: inset 0px 1px 1px #8C8C8C;
+          }
+
+        .button.disabled
+          {
+          box-shadow:none; opacity:0.7;
+          }
+
+        canvas
+          {
+          display: block;
+          }
+        body
+          {
+            background-image: url("{{ url_for('static', filename='img/bg.jpg') }}");
+            background-repeat: no-repeat;
+          }
+      </style>
+  </head>
+
+  <body>
+  <center><h2>VOICE</h2></center></br>
+    <div class="row">
+      <div class="col s12 m2">
+        <div class="card"></div>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="card">
+          <div class="card-content">
+            <center><h5>Paragraph</h5></center><hr>
+            <p>
+              I am a very simple card. I am good at containing small bits of information.
+              I am convenient because I require little markup to use effectively.
+              I am a very simple card. I am good at containing small bits of information.
+              I am convenient because I require little markup to use effectively.
+              I am a very simple card. I am good at containing small bits of information.
+              I am convenient because I require little markup to use effectively.
+              I am a very simple card.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col s12 m4">
+        <div class="card">
+          <center>
+            <div class="card-content">
+              <h5>Record</h5>
+
+              <p>
+                <div></br></br>
+                  <button id=startRecord>Record Voice</button>
+                  <button id=stopRecord disabled>Stop & Play</button></br><hr>
+                  <audio id=recordedAudio></audio><hr></br>
+			      <a class="button playButton" id=audioDownload>Download</a>
+                  <a class="button saveButton" id=save>Save</a>
+                </div>
+              </p>
+            </div>
+          </center>
+        </div>
+      </div>
+
+      <div class="col s12 m2">
+        <div class="card"></div>
+      </div>
+    </div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <!-- Compiled and minified JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.1/js/materialize.min.js"></script>
+  </body>
+</html>

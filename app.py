@@ -4,6 +4,7 @@ import traceback
 import datetime
 from flask_cors import CORS
 from functools import wraps
+from difflib import SequenceMatcher
 from werkzeug.utils import secure_filename
 from flask import Flask, request, redirect, render_template, jsonify
 from flask.ext.bcrypt import Bcrypt
@@ -13,7 +14,7 @@ from models import app, db, User, Study, Recording
 # app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+cors = CORS(app, resources={r'/api/*': {'origins': '*'}})
 app.config['secretkey'] = 'some-strong+secret#key'
 
 
@@ -40,10 +41,22 @@ def token_required(f):
     return decorated
 
 
-@app.route('/index')
+@app.route('/api/index')
 def index():
     temp_data = {'title': 'SpeechApp'}
     return render_template('index.html', **temp_data)
+
+
+@app.route('/api/voice')
+def voice():
+    temp_data = {'title': 'SpeechVoice'}
+    return render_template('voice.html', **temp_data)
+
+
+@app.route('/api/speech')
+def speech():
+    temp_data = {'title': 'SpeechVoice'}
+    return render_template('speech-to-text.html', **temp_data)
 
 
 @app.route('/api/user_registration', methods=['POST'])
@@ -78,8 +91,8 @@ def user_login():
 
         # check email is valid or not
         if not query:
-            ret["msg"] = 'Login failed! Email is not valid'
-            ret["success"] = False
+            ret['msg'] = 'Login failed! Email is not valid'
+            ret['success'] = False
             return jsonify(ret)
         password_db = query.password
 
@@ -165,7 +178,7 @@ def study():
         total_lines = i + 1
 
         # getting the data from the csv file
-        csv_file = open('upload/study.csv', "r")
+        csv_file = open('upload/study.csv', 'r')
 
         line = csv_file.readline()
         cnt = 1
@@ -192,13 +205,13 @@ def study():
                           AH_Output, AH_Acc, AH_Conf, Speaker)
             db.session.add(study)
             db.session.commit()
-            ret["success"] = True
-            ret["msg"] = 'Csv file is stored in the psql'
+            ret['success'] = True
+            ret['msg'] = 'Csv file is stored in the psql'
             cnt += 1
 
     except Exception as exp:
-        ret["success"] = False
-        ret["error"] = '%s' % exp
+        ret['success'] = False
+        ret['error'] = '%s' % exp
     return jsonify(ret)
 
 
@@ -226,7 +239,7 @@ def get_study_material():
             study['created_at'] = data.created_at
             studies.append(study)
         ret['success'] = True
-        ret["studies"] = studies
+        ret['studies'] = studies
     except Exception as exp:
         ret['success'] = False
         ret['error'] = exp
@@ -261,15 +274,49 @@ def add_recording():
         recording = Recording(id, user_id, study_id, save_recording_file_url)
         db.session.add(recording)
         db.session.commit()
-        ret["success"] = True
-        ret["msg"] = 'recording added successfully'
+        ret['success'] = True
+        ret['msg'] = 'recording added successfully'
     except Exception as exp:
         print 'add_recording() :: Got excepion: %s' % exp
         print(traceback.format_exc())
-        ret["msg"] = '%s' % exp
-        ret["success"] = False
+        ret['msg'] = '%s' % exp
+        ret['success'] = False
     return jsonify(ret)
 
+
+@app.route('/api/get_recording')
+def get_recording():
+    ret = {}
+    recordings = []
+    try:
+        recording = {}
+        for data in Recording.query.all():
+            recording['id'] = data.id
+            recording['user_id'] = data.user_id
+            recording['study_id'] = data.study_id
+            recording['recording_file'] = data.recording_file
+            recordings.append(recording)
+        ret['success'] = True
+        ret['recordings'] = recordings
+    except Exception as exp:
+        print 'get_recording() :: Got exception: %s' % exp
+        print(traceback.format_exc())
+        ret['success'] = False
+        ret['error'] = '%s' % exp
+    return jsonify(ret)
+
+
+@app.route('/api/comparison')
+def comparison():
+    ret = {}
+    file1 = open('upload/study.csv', 'r')
+    data = file1.read()
+    file2 = open('upload/study_file.csv', 'r')
+    data2 = file2.read()
+    comparison = str(SequenceMatcher(None, data, data2).ratio() * 100)
+    ret['Comparison_percentage'] = comparison
+    ret['success'] = True
+    return jsonify(ret)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
