@@ -66,7 +66,7 @@ def user_registration():
         id = request.form['id']
         name = request.form['name']
         email = request.form['email']
-        pswd = request.form['pswd']
+        pswd = request.form['password']
         pw_hash = bcrypt.generate_password_hash(pswd)
         user = User(id, name, email, pw_hash)
         db.session.add(user)
