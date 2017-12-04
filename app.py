@@ -9,10 +9,8 @@ from difflib import SequenceMatcher
 from werkzeug.utils import secure_filename
 from flask import Flask, request, redirect, render_template, jsonify
 from flask.ext.bcrypt import Bcrypt
-from flask_sqlalchemy import SQLAlchemy
 from models import app, db, User, Study, Recording
 
-# app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
 cors = CORS(app, resources={r'/api/*': {'origins': '*'}})
@@ -92,7 +90,7 @@ def user_login():
 
         # check email is valid or not
         if not query:
-            ret['msg'] = 'Login failed! Email is not valid'
+            ret['msg'] = 'Login failed! Email and Password not match'
             ret['success'] = False
             return jsonify(ret)
         password_db = query.password
@@ -319,18 +317,9 @@ def comparison():
     ret['success'] = True
     return jsonify(ret)
 
-ssl_dir = os.path.dirname(os.path.realpath(__file__))
-key_path = os.path.join('ssl/', 'server.key')
-crt_path = os.path.join('ssl/', 'server.crt')
-ssl_context = (crt_path, key_path)
-
-context = SSL.Context(SSL.SSLv23_METHOD)
-context.use_privatekey_file(key_path)
-context.use_certificate_file(crt_path)
-#
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
     context = ('server.crt', 'server.key')
-    app.run(host='0.0.0.0', port=port, debug=True, threaded=True, ssl_context=context)
-    # app.run(host='127.0.0.1', port=port, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=port, debug=True, threaded=True)
+
