@@ -2,6 +2,7 @@ import os
 import jwt
 import traceback
 import datetime
+from OpenSSL import SSL
 from flask_cors import CORS
 from functools import wraps
 from difflib import SequenceMatcher
@@ -318,6 +319,18 @@ def comparison():
     ret['success'] = True
     return jsonify(ret)
 
+ssl_dir = os.path.dirname(os.path.realpath(__file__))
+key_path = os.path.join('ssl/', 'server.key')
+crt_path = os.path.join('ssl/', 'server.crt')
+ssl_context = (crt_path, key_path)
+
+context = SSL.Context(SSL.SSLv23_METHOD)
+context.use_privatekey_file(key_path)
+context.use_certificate_file(crt_path)
+#
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
-    app.run(host='0.0.0.0', port=port, debug=True, threaded=True)
+    context = ('server.crt', 'server.key')
+    app.run(host='0.0.0.0', port=port, debug=True, threaded=True, ssl_context=context)
+    # app.run(host='127.0.0.1', port=port, debug=True, threaded=True)
