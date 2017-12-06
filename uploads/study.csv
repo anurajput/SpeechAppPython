@@ -1,0 +1,4 @@
+Paragraph_Number,Paragraph_Text,Date_of_Upload,Paragraph_Type,Word_Count,Status,GCS_Output,GCS_Acc,GCS_Conf,AH_Output,AH_Acc,AH_Conf,Speaker
+1,Here write paragreaph text,43067,,54,analysed,here  write GCS_output text,100.00%,96.00%,Here write AH_output text,100.00%,96.00%,sylvester
+2,Paragraph_Text,43068,,55,analysed,GCS_Output_record,95.00%,90.00%,AH_Output_record,85.00%,70,ibal
+3,SpeechApp_paragraph_text,43069,SpeechApp_type,56,not analysed,SpeechApp_GCS,92.00%,88.00%,SpeechApp_AH,99.00%,93.00%,sony

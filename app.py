@@ -4,6 +4,7 @@ import traceback
 import datetime
 from OpenSSL import SSL
 from flask_cors import CORS
+from google_api import run_google_api
 from functools import wraps
 from difflib import SequenceMatcher
 from werkzeug.utils import secure_filename
@@ -56,6 +57,20 @@ def voice():
 def speech():
     temp_data = {'title': 'SpeechVoice'}
     return render_template('speech-to-text.html', **temp_data)
+
+
+@app.route('/api/demo')
+def demo():
+    return render_template('demo.html')
+
+
+@app.route('/api/get_demo', methods=['POST'])
+def get_demo():
+    try:
+        print '======================', request.form
+    except:
+        pass
+    return "hoo"
 
 
 @app.route('/api/user_registration', methods=['POST'])
@@ -125,9 +140,9 @@ def user_login():
 #           Upload FILE              #
 ######################################
 dir_path = os.path.dirname(os.path.realpath(__file__))
-file_path = '%s/%s' % (dir_path, 'upload')
+file_path = '%s/%s' % (dir_path, 'uploads')
 UPLOAD_FOLDER = file_path
-ALLOWED_EXTENSION = set(['txt', 'csv', 'png', 'jpg', 'gif', 'pdf'])
+ALLOWED_EXTENSION = set(['wav', 'mp3', 'txt', 'csv', 'png', 'jpg', 'gif', 'pdf'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -161,7 +176,7 @@ def add_study():
         print 'file() :: Got exception: %s' % exp
         print(traceback.format_exc())
 
-    return 'file upload successfully'
+    return 'file uploads successfully'
 
 
 @app.route('/api/study')
@@ -171,13 +186,13 @@ def study():
     ret = {}
     try:
         # count the no of lines
-        with open('upload/study.csv') as f:
+        with open('uploads/study.csv') as f:
             for i, l in enumerate(f):
                 pass
         total_lines = i + 1
 
         # getting the data from the csv file
-        csv_file = open('upload/study.csv', 'r')
+        csv_file = open('uploads/study.csv', 'r')
 
         line = csv_file.readline()
         cnt = 1
@@ -254,7 +269,7 @@ def add_recording():
         user_id = request.form['user_id']
         study_id = request.form['study_id']
 
-        # recording upload
+        # recording uploads
         filename = ''
         recording_file = request.files['recording_file']
 
@@ -308,13 +323,52 @@ def get_recording():
 @app.route('/api/comparison')
 def comparison():
     ret = {}
-    file1 = open('upload/study.csv', 'r')
+    audio = Recording.query.all()
+    print '', audio
+    google_data = run_google_api()
+    # print "-------+++++++: [%s]" % google_data
+    file1 = open('uploads/study.csv', 'r')
     data = file1.read()
-    file2 = open('upload/study_file.csv', 'r')
+    file2 = open('uploads/study_file.csv', 'r')
     data2 = file2.read()
     comparison = str(SequenceMatcher(None, data, data2).ratio() * 100)
     ret['Comparison_percentage'] = comparison
     ret['success'] = True
+    return jsonify(ret)
+
+
+@app.route('/api/matching_test', methods=['POST'])
+def matching_test():
+    ret = {}
+    prefix = request.base_url[:-len('/api/matching_test')]
+
+    recording_path = None
+
+    try:
+        text = request.form['text']
+        # recording uploads
+        filename = ''
+        rec_file = request.files['rec_file']
+
+        if rec_file.filename == '':
+            flash('Nop Selectd file')
+            return redirect(request.url)
+        if rec_file and allowed_file(rec_file.filename):
+            filename = secure_filename(rec_file.filename)
+            rec_file.save(os.path.join(app.config
+                                             ['UPLOAD_FOLDER'], filename))
+            recording_path = '%s/%s' % (file_path, filename)
+
+        save_recording_file_url = '%s/uploads/%s' % (prefix, filename)
+        rec_text = run_google_api(recording_path)
+        comparison = str(SequenceMatcher(None, text, rec_text).ratio() * 100)
+        ret['Comparison_percentage'] = comparison
+        ret['success'] = True
+    except Exception as exp:
+        print 'matching_test() :: Got Exception: %s' % exp
+        print(traceback.format_exc())
+        ret['msg'] = '%s' % exp
+        ret['success'] = False
     return jsonify(ret)
 
 
