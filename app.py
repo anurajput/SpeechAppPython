@@ -241,6 +241,7 @@ def get_study_material():
             study['Paragraph_Number'] = data.Paragraph_Number
             study['Paragraph_Text'] = data.Paragraph_Text
             study['Date_of_Upload'] = data.Date_of_Upload
+            study['Paragraph_Type'] = data.Paragraph_Type
             study['Word_Count'] = data.Word_Count
             study['Status'] = data.Status
             study['GCS_Output'] = data.GCS_Output
