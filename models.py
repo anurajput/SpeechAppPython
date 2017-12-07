@@ -52,6 +52,7 @@ class Study(db.Model):
     Paragraph_Number = db.Column(db.BigInteger)
     Paragraph_Text = db.Column(db.String(90))
     Date_of_Upload = db.Column(db.String(90))
+    Paragraph_Type = db.Column(db.String(90))
     Word_Count = db.Column(db.BigInteger)
     Status = db.Column(db.String(90))
     GCS_Output = db.Column(db.String(90))
@@ -65,12 +66,13 @@ class Study(db.Model):
                            default=datetime.utcnow, nullable=False)
 
     def __init__(self, id, Paragraph_Number, Paragraph_Text, Date_of_Upload,
-                 Word_Count, Status, GCS_Output, GCS_Acc, GCS_Conf, AH_Output,
-                 AH_Acc, AH_Conf, Speaker):
+                 Paragraph_Type, Word_Count, Status, GCS_Output, GCS_Acc,
+                 GCS_Conf, AH_Output, AH_Acc, AH_Conf, Speaker):
         self.id = id
         self.Paragraph_Number = Paragraph_Number
         self.Paragraph_Text = Paragraph_Text
         self.Date_of_Upload = Date_of_Upload
+        self.Paragraph_Type = Paragraph_Type
         self.Word_Count = Word_Count
         self.Status = Status
         self.GCS_Output = GCS_Output
@@ -90,6 +92,7 @@ class Study(db.Model):
             'Paragraph_Number': self.Paragraph_Number,
             'Paragraph_Text': self.Paragraph_Text,
             'Date_of_Upload': self.Date_of_Upload,
+            'Paragraph_Type': self.Paragraph_Type,
             'Word_Count': self.Word_Count,
             'Status': self.Status,
             'GCS_Output': self.GCS_Output,

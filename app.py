@@ -215,8 +215,8 @@ def study():
             AH_Conf = s[11]
             Speaker = s[12]
             study = Study(id, Paragraph_Number, Paragraph_Text, Date_of_Upload,
-                          Word_Count, Status, GCS_Output, GCS_Acc, GCS_Conf,
-                          AH_Output, AH_Acc, AH_Conf, Speaker)
+                          Paragraph_Type, Word_Count, Status, GCS_Output, GCS_Acc,
+                          GCS_Conf, AH_Output, AH_Acc, AH_Conf, Speaker)
             db.session.add(study)
             db.session.commit()
             ret['success'] = True
