@@ -157,7 +157,7 @@ def allowed_file(filename):
                                in ALLOWED_EXTENSION
 
 
-@app.route('/add_study', methods=['POST'])
+@app.route('/api/add_study', methods=['POST'])
 def add_study():
     prefix = request.base_url[:-len('/add_study')]
     try:
