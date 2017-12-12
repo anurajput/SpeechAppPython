@@ -142,7 +142,7 @@ def user_login():
 dir_path = os.path.dirname(os.path.realpath(__file__))
 file_path = '%s/%s' % (dir_path, 'uploads')
 UPLOAD_FOLDER = file_path
-ALLOWED_EXTENSION = set(['wav', 'mp3', 'txt', 'csv', 'png', 'jpg', 'gif', 'pdf'])
+ALLOWED_EXTENSION = set(['ogg', 'm4a', 'wav', 'mp3', 'txt', 'csv', 'png', 'jpg', 'gif', 'pdf'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
