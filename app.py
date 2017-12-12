@@ -359,9 +359,12 @@ def matching_test():
             rec_file.save(os.path.join(app.config
                                              ['UPLOAD_FOLDER'], filename))
             recording_path = '%s/%s' % (file_path, filename)
+            print 'recording_path', recording_path
 
         save_recording_file_url = '%s/uploads/%s' % (prefix, filename)
+        print 'save_recording_path', save_recording_file_url
         rec_text = run_google_api(recording_path)
+        print 'recording text:', rec_text
         comparison = str(SequenceMatcher(None, text, rec_text).ratio() * 100)
         ret['Comparison_percentage'] = comparison
         ret['success'] = True
