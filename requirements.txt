@@ -89,7 +89,7 @@ sublime==0.1.0
 triangle==20170429
 typing==3.5.3.0
 unity-lens-photos==1.0
-urllib3==1.21.1
+urllib3==1.26.5
 virtualenv==15.1.0
 virtualenv-clone==0.2.6
 virtualenvwrapper==4.7.2
