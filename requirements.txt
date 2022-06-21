@@ -51,7 +51,7 @@ jwt==0.5.2
 Mako==1.0.7
 MarkupSafe==0.23
 mimerender==0.6.0
-numpy==1.13.1
+numpy==1.22.0
 passlib==1.7.1
 pathlib==1.0.1
 pbr==3.1.1
