@@ -48,7 +48,7 @@ Jinja==1.2
 Jinja2==2.9.6
 jsonify==0.5
 jwt==0.5.2
-Mako==1.0.7
+Mako==1.2.2
 MarkupSafe==0.23
 mimerender==0.6.0
 numpy==1.13.1
